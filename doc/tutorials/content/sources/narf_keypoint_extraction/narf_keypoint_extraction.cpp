@@ -15,9 +15,11 @@ typedef pcl::PointXYZ PointType;
 // --------------------
 // -----Parameters-----
 // --------------------
-float angular_resolution = 0.5f;
+float angular_resolution = 0.05f;
+// float angular_resolution = 0.5f;
 float support_size = 0.2f;
-pcl::RangeImage::CoordinateFrame coordinate_frame = pcl::RangeImage::CAMERA_FRAME;
+// float support_size = 0.2f;
+pcl::RangeImage::CoordinateFrame coordinate_frame = pcl::RangeImage::LASER_FRAME;
 bool setUnseenToMaxRange = false;
 
 // --------------
@@ -97,6 +99,16 @@ main (int argc, char** argv)
       printUsage (argv[0]);
       return 0;
     }
+    std::cout << "*****" << Eigen::Translation3f (point_cloud.sensor_origin_[0],
+                                                  point_cloud.sensor_origin_[1],
+                                                  point_cloud.sensor_origin_[2]).translation() << std::endl;
+
+    std::cout << "***" << "\n" << Eigen::Affine3f (Eigen::Translation3f (point_cloud.sensor_origin_[0],
+                                                                 point_cloud.sensor_origin_[1],
+                                                                 point_cloud.sensor_origin_[2])).matrix() <<    std::endl;
+
+    std::cout << "****" << "\n" << Eigen::Affine3f (point_cloud.sensor_orientation_).matrix() << "\n";
+
     scene_sensor_pose = Eigen::Affine3f (Eigen::Translation3f (point_cloud.sensor_origin_[0],
                                                                point_cloud.sensor_origin_[1],
                                                                point_cloud.sensor_origin_[2])) *
@@ -109,9 +121,9 @@ main (int argc, char** argv)
   {
     setUnseenToMaxRange = true;
     cout << "\nNo *.pcd file given => Generating example point cloud.\n\n";
-    for (float x=-0.5f; x<=0.5f; x+=0.01f)
+    for (float x=-0.5f; x<=0.0f; x+=0.1f)
     {
-      for (float y=-0.5f; y<=0.5f; y+=0.01f)
+      for (float y=-0.5f; y<=0.0f; y+=0.1f)
       {
         PointType point;  point.x = x;  point.y = y;  point.z = 2.0f - y;
         point_cloud.points.push_back (point);
@@ -130,6 +142,7 @@ main (int argc, char** argv)
   pcl::RangeImage& range_image = *range_image_ptr;   
   range_image.createFromPointCloud (point_cloud, angular_resolution, pcl::deg2rad (360.0f), pcl::deg2rad (180.0f),
                                    scene_sensor_pose, coordinate_frame, noise_level, min_range, border_size);
+  std::cout << "************" << range_image.points.size() << std::endl;
   range_image.integrateFarRanges (far_ranges);
   if (setUnseenToMaxRange)
     range_image.setUnseenToMaxRange ();
@@ -151,6 +164,15 @@ main (int argc, char** argv)
   // --------------------------
   // -----Show range image-----
   // --------------------------
+  std::cout << "************" << range_image.points.size() << std::endl;
+  for (int i=0; i<range_image.points.size(); i++)
+  {
+     if (range_image.points[i].x < 1)
+     {
+        std::cout << "\n" << "i: " << i <<  range_image.points[i] << "\n";
+     }
+  }
+
   pcl::visualization::RangeImageVisualizer range_image_widget ("Range image");
   range_image_widget.showRangeImage (range_image);
   

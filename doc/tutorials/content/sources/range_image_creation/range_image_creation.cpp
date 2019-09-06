@@ -17,10 +17,10 @@ int main (int argc, char** argv) {
   pointCloud.height = 1;
   
   // We now want to create a range image from the above point cloud, with a 1deg angular resolution
-  float angularResolution = (float) (  1.0f * (M_PI/180.0f));  //   1.0 degree in radians
+  float angularResolution = (float) (  3.0f * (M_PI/180.0f));  //   1.0 degree in radians
   float maxAngleWidth     = (float) (360.0f * (M_PI/180.0f));  // 360.0 degree in radians
   float maxAngleHeight    = (float) (180.0f * (M_PI/180.0f));  // 180.0 degree in radians
-  Eigen::Affine3f sensorPose = (Eigen::Affine3f)Eigen::Translation3f(0.0f, 0.0f, 0.0f);
+  Eigen::Affine3f sensorPose = (Eigen::Affine3f)Eigen::Translation3f(0.0f, 0.0f, 1.0f);
   pcl::RangeImage::CoordinateFrame coordinate_frame = pcl::RangeImage::CAMERA_FRAME;
   float noiseLevel=0.00;
   float minRange = 0.0f;
@@ -29,6 +29,10 @@ int main (int argc, char** argv) {
   pcl::RangeImage rangeImage;
   rangeImage.createFromPointCloud(pointCloud, angularResolution, maxAngleWidth, maxAngleHeight,
                                   sensorPose, coordinate_frame, noiseLevel, minRange, borderSize);
-  
+
+  Eigen::Affine3f temp = (Eigen::Affine3f)rangeImage.getTransformationToWorldSystem();
+  Eigen::Matrix3f m = temp.rotation();
+  Eigen::Vector3f v = temp.translation();
+  std::cout << "tO_Word_System: " << "Rotation: " << m << "translation: " << v << "\n";
   std::cout << rangeImage << "\n";
 }

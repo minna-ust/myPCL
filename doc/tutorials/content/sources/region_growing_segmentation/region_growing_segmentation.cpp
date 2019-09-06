@@ -13,7 +13,7 @@ int
 main (int argc, char** argv)
 {
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
-  if ( pcl::io::loadPCDFile <pcl::PointXYZ> ("region_growing_tutorial.pcd", *cloud) == -1)
+  if ( pcl::io::loadPCDFile <pcl::PointXYZ> ("cloud000100.pcd", *cloud) == -1)
   {
     std::cout << "Cloud reading failed." << std::endl;
     return (-1);
@@ -63,11 +63,22 @@ main (int argc, char** argv)
   std::cout << std::endl;
 
   pcl::PointCloud <pcl::PointXYZRGB>::Ptr colored_cloud = reg.getColoredCloud ();
-  pcl::visualization::CloudViewer viewer ("Cluster viewer");
-  viewer.showCloud(colored_cloud);
-  while (!viewer.wasStopped ())
+  pcl::visualization::PCLVisualizer::Ptr viewer_(new pcl::visualization::PCLVisualizer("PCD View123"));
+  viewer_->addCoordinateSystem(1.0);
+  viewer_->initCameraParameters();
+  viewer_->addPointCloud<pcl::PointXYZRGB>(colored_cloud, "sample cloud2");
+  while (!viewer_->wasStopped())
   {
+      viewer_->spinOnce (100);
+
+      // boost::this_thread::sleep (boost::posix_time::microseconds (100));
   }
+
+  // pcl::visualization::CloudViewer viewer ("Cluster viewer");
+  // viewer.showCloud(colored_cloud);
+  // while (!viewer.wasStopped ())
+  // {
+  // }
 
   return (0);
 }
